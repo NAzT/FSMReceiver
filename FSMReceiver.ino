@@ -14,9 +14,7 @@ void loop()
   nat.tick(); 
   
   if (Serial.available() > 0) {
-    Serial.print("ENTER: ");
     char c = Serial.read();
-    Serial.println(c);
     nat.process(c);
   }
   
