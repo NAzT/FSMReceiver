@@ -2,25 +2,26 @@
 
 Nat nat;
 
-void setup() 
+void setup()
 {
-  Serial.begin(9600);
+    Serial.begin(9600);
 
 }
 
-void loop() 
+void loop()
 {
-  static int n = 0;
-  nat.tick(); 
-  
-  if (Serial.available() > 0) {
-    char c = Serial.read();
-    nat.process(c);
-  }
-  
-  // keep watching the push button:
+    static int n = 0;
+    nat.tick();
 
-  delay(1);
+    if (Serial.available() > 0)
+    {
+        char c = Serial.read();
+        nat.process(c);
+    }
+
+    // keep watching the push button:
+
+    delay(1);
 }
 
 
