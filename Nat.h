@@ -2,6 +2,7 @@
 #define NAT_H
 
 #include "Arduino.h"
+#include <SD.h>
 
 // ----- Callback function types -----
 
@@ -11,7 +12,7 @@ extern "C" {
 
 #define FILE_NAME_MAX_LENGTH 8
 #define EXT_MAX_LEGNTH 3
-#define FILE_TOTAL_LENGTH 12
+#define FILE_TOTAL_LENGTH 14
 
 
 class Nat
@@ -57,6 +58,9 @@ private:
 
     char *_nextCode;
     char _file_name[FILE_TOTAL_LENGTH];
+
+    File _myFile;
+    int _chipSelect;
 
 };
 

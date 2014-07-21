@@ -13,8 +13,12 @@ Nat::Nat(void)
 void Nat::tick(void)
 {
     unsigned long now = millis(); // current (relative) time in msecs.
-    _startTime = now;
-
+    // _startTime = now;
+    if (now - _startTime >= 1000) {
+        _startTime = now;
+        Serial.print("TICKING... ");
+        Serial.println(_startTime);
+    }
 }
 
 bool Nat::reset()
@@ -71,7 +75,7 @@ void Nat::process(byte b)
         if (is_allowed(b))
         {
             _state = 1;
-            _file_name[0] = (char)b;
+            _file_name[0] = (byte)b;
             _file_name[1] = '\0';
             _tmp_name_counter++;
         }
@@ -98,7 +102,6 @@ void Nat::process(byte b)
             }
             else
             {
-                Serial.println("RESET STATE: @1");
                 reset();
                 _tmp_name_counter = 0;
                 _state = 0;
@@ -131,23 +134,45 @@ void Nat::process(byte b)
         else if (is_file_name_ended(b))
         {
             unsigned int len = strlen(_file_name);
-            _file_name[len+1] = '\0';
+            _file_name[len] = '\0';
             _state = 3;
         }
         else
         {
             Serial.println("RESET STATE @2.2");
-            reset();
             _state = 0;
+            reset();
         }
     }
     else if (_state == 3)
     {
-        Serial.println("CODING...");
-        Serial.println("CODING...");
-        Serial.println("CODING...");
-        Serial.println("CODING...");
+        Serial.println(".. STATE 3 ..");
+        _myFile = SD.open(_file_name, FILE_WRITE);
+
+        // if the file opened okay, write to it:
+        if (_myFile)
+        {
+            _state = 4;
+        }
+        else 
+        {
+            Serial.print("error opening ");
+            Serial.println(_file_name);
+            reset();
+            _state = 0;
+        }
     }
+    else if (_state == 4) {
+        Serial.println(".. STATE 4 ..");
+        if (is_file_name_ended(b)) {
+            Serial.flush();
+            _myFile.close();
+        }
+        else {
+            _myFile.write(b);
+        }
+    }
+
 
     Serial.println();
     Serial.println("=========");
