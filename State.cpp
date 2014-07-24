@@ -1,6 +1,8 @@
 #include "State.h"
 
 // ----- Initialization -----
+#define DEBUG_VERBOSE 1
+#define DEBUG 1
 
 State::State(void)
 {
@@ -17,8 +19,6 @@ void State::tick(void)
     if (now - _startTime >= 1000)
     {
         _startTime = now;
-        // Serial.print("TICKING... ");
-        // Serial.println(_startTime);
     }
 }
 
@@ -34,12 +34,10 @@ bool State::is_allowed(byte b)
 {
     if ((b >= 48 && b <= 57) || (b>=97 && b<= 122))
     {
-        // Serial.println("true");
         return true;
     }
     else
     {
-        // Serial.println("false");
         return false;
     }
 }
@@ -82,7 +80,10 @@ void State::process(byte b)
         }
         else
         {
-            Serial.println("NOT ALLOWED: @0");
+            if (DEBUG_VERBOSE)
+            {
+                Serial.println("NOT ALLOWED: @0");
+            }
             reset();
             _state = 0;
         }
@@ -114,10 +115,13 @@ void State::process(byte b)
         if (is_allowed(b))
         {
             unsigned pos = _tmp_name_counter + _tmp_ext_counter;
-            Serial.print("== ");
-            Serial.print(pos);
-            Serial.print(", ");
-            Serial.println(_tmp_ext_counter);
+            if (DEBUG_VERBOSE)
+            {
+                Serial.print("== ");
+                Serial.print(pos);
+                Serial.print(", ");
+                Serial.println(_tmp_ext_counter);
+            }
 
             if (_tmp_ext_counter > EXT_MAX_LEGNTH-1)
             {
@@ -140,14 +144,21 @@ void State::process(byte b)
         }
         else
         {
-            Serial.println("RESET STATE @2.2");
+            if (DEBUG_VERBOSE)
+            {
+                Serial.println("RESET STATE @2.2");
+            }
             _state = 0;
             reset();
         }
     }
     else if (_state == 3)
     {
-        Serial.println(".. STATE 3 ..");
+        if (DEBUG_VERBOSE)
+        {
+            Serial.println(".. STATE 3 ..");
+        }
+
         _myFile = SD.open(_file_name, FILE_WRITE);
 
         // if the file opened okay, write to it:
@@ -157,15 +168,22 @@ void State::process(byte b)
         }
         else
         {
-            Serial.print("error opening ");
-            Serial.println(_file_name);
+            if (DEBUG_VERBOSE)
+            {
+                Serial.print("error opening ");
+                Serial.println(_file_name);
+            }
             reset();
             _state = 0;
         }
     }
     else if (_state == 4)
     {
-        Serial.println(".. STATE 4 ..");
+        if (DEBUG_VERBOSE)
+        {
+            Serial.println(".. STATE 4 ..");
+        }
+
         if (is_file_name_ended(b))
         {
             Serial.flush();
@@ -177,12 +195,14 @@ void State::process(byte b)
         }
     }
 
-
-    Serial.println();
-    Serial.println("=========");
-    Serial.print("STATE.. ");
-    Serial.println(_state);
-    Serial.print("FILE: ");
-    Serial.println(_file_name);;
-    Serial.println("=========");
+    if (DEBUG_VERBOSE)
+    {
+        Serial.println();
+        Serial.println("=========");
+        Serial.print("STATE.. ");
+        Serial.println(_state);
+        Serial.print("FILE: ");
+        Serial.println(_file_name);;
+        Serial.println("=========");
+    }
 }
