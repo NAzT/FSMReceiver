@@ -1,7 +1,7 @@
 #include <SD.h>
-#include "Nat.h"
+#include "State.h"
 
-Nat *nat = 0;
+State *nat = 0;
 
 void setup()
 {
@@ -9,13 +9,15 @@ void setup()
     Serial.begin(9600);
     Serial.flush();
 
-    if (!SD.begin(10)) {
+    if (!SD.begin(10))
+    {
         Serial.println("initialization failed!");
     }
-    else {
+    else
+    {
         Serial.println("OK");
         delay(200);
-        nat = new Nat();
+        nat = new State();
     }
 
 

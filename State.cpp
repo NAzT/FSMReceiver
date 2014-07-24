@@ -1,27 +1,28 @@
-#include "Nat.h"
+#include "State.h"
 
 // ----- Initialization -----
 
-Nat::Nat(void)
+State::State(void)
 {
     _unitTicks = DefaultUnitTicks;        // # millisec after single click is assumed.
     _tmp_name_counter = 0;
     _tmp_ext_counter = 0;
     _state = 0; // starting with state 0: waiting for a code to be sent.
-} //Nat
+} //State
 
-void Nat::tick(void)
+void State::tick(void)
 {
     unsigned long now = millis(); // current (relative) time in msecs.
     // _startTime = now;
-    if (now - _startTime >= 1000) {
+    if (now - _startTime >= 1000)
+    {
         _startTime = now;
-        Serial.print("TICKING... ");
-        Serial.println(_startTime);
+        // Serial.print("TICKING... ");
+        // Serial.println(_startTime);
     }
 }
 
-bool Nat::reset()
+bool State::reset()
 {
     for (int i = 0; i < FILE_TOTAL_LENGTH; ++i)
     {
@@ -29,7 +30,7 @@ bool Nat::reset()
     }
 }
 
-bool Nat::is_allowed(byte b)
+bool State::is_allowed(byte b)
 {
     if ((b >= 48 && b <= 57) || (b>=97 && b<= 122))
     {
@@ -43,7 +44,7 @@ bool Nat::is_allowed(byte b)
     }
 }
 
-bool Nat::is_dot(byte d)
+bool State::is_dot(byte d)
 {
     if (d == 0x2e)
     {
@@ -55,7 +56,7 @@ bool Nat::is_dot(byte d)
     }
 }
 
-bool Nat::is_file_name_ended(byte b)
+bool State::is_file_name_ended(byte b)
 {
     // 0x3b = ;
     if (b == 0x3b)
@@ -68,7 +69,7 @@ bool Nat::is_file_name_ended(byte b)
     }
 }
 
-void Nat::process(byte b)
+void State::process(byte b)
 {
     if (_state == 0)   // FIRST CHAR MUST BE CHAR!
     {
@@ -154,7 +155,7 @@ void Nat::process(byte b)
         {
             _state = 4;
         }
-        else 
+        else
         {
             Serial.print("error opening ");
             Serial.println(_file_name);
@@ -162,13 +163,16 @@ void Nat::process(byte b)
             _state = 0;
         }
     }
-    else if (_state == 4) {
+    else if (_state == 4)
+    {
         Serial.println(".. STATE 4 ..");
-        if (is_file_name_ended(b)) {
+        if (is_file_name_ended(b))
+        {
             Serial.flush();
             _myFile.close();
         }
-        else {
+        else
+        {
             _myFile.write(b);
         }
     }

@@ -1,5 +1,5 @@
-#ifndef NAT_H
-#define NAT_H
+#ifndef STATE_H
+#define STATE_H
 
 #include "Arduino.h"
 #include <SD.h>
@@ -15,14 +15,14 @@ extern "C" {
 #define FILE_TOTAL_LENGTH 14
 
 
-class Nat
+class State
 {
 public:
     // ----- Constants -----
     static const int DefaultUnitTicks = 120; // slow enough for beginners
 
     // ----- Constructors -----
-    Nat(void);
+    State(void);
 
     // ----- Runtime Parameters -----
 
