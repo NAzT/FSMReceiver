@@ -1,7 +1,7 @@
 #include "State.h"
 
 // ----- Initialization -----
-#define DEBUG_VERBOSE 0
+#define DEBUG_VERBOSE 1
 #define DEBUG 1
 
 State::State(void)
@@ -22,10 +22,8 @@ void State::tick(void)
     }
 }
 
-bool State::reset(float state)
+bool State::reset()
 {
-    Serial.print("RESET AT: ");
-    Serial.println(state);
     for (int i = 0; i < FILE_TOTAL_LENGTH; ++i)
     {
         _file_name[i] = '\0';
@@ -34,28 +32,44 @@ bool State::reset(float state)
 
 bool State::is_allowed(byte b)
 {
-    bool allowed = (b >= 48 && b <= 57) || (b>=97 && b<= 122);
-    return allowed;
+    if ((b >= 48 && b <= 57) || (b>=97 && b<= 122))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool State::is_dot(byte d)
 {
-    return d == 0x2e;
+    if (d == 0x2e)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool State::is_file_name_ended(byte b)
 {
     // 0x3b = ;
-    return b == 0x3b;
+    if (b == 0x3b)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void State::process(byte b)
 {
-    if ((char) b == '!') {
-        _state = 0;
-        reset(0.0);
-    }
-    else if (_state == 0)   // FIRST CHAR MUST BE CHAR!
+    if (_state == 0)   // FIRST CHAR MUST BE CHAR!
     {
         if (is_allowed(b))
         {
@@ -70,7 +84,7 @@ void State::process(byte b)
             {
                 Serial.println("NOT ALLOWED: @0");
             }
-            reset(0);
+            reset();
             _state = 0;
         }
     }
@@ -90,7 +104,7 @@ void State::process(byte b)
             }
             else
             {
-                reset(1);
+                reset();
                 _tmp_name_counter = 0;
                 _state = 0;
             }
@@ -101,7 +115,7 @@ void State::process(byte b)
         if (is_allowed(b))
         {
             unsigned pos = _tmp_name_counter + _tmp_ext_counter;
-            if (DEBUG_VERBOSE)
+            if (DEBUG_VERBOSE) 
             {
                 Serial.print("== ");
                 Serial.print(pos);
@@ -111,7 +125,7 @@ void State::process(byte b)
 
             if (_tmp_ext_counter > EXT_MAX_LEGNTH-1)
             {
-                reset(2.1);
+                reset();
                 _state = 0;
                 _tmp_name_counter = 0;
                 _tmp_ext_counter = 0;
@@ -127,16 +141,15 @@ void State::process(byte b)
             unsigned int len = strlen(_file_name);
             _file_name[len] = '\0';
             _state = 3;
-            Serial.println(_file_name);
         }
         else
         {
-            if (DEBUG_VERBOSE)
+            if (DEBUG_VERBOSE) 
             {
                 Serial.println("RESET STATE @2.2");
             }
             _state = 0;
-            reset(2.2);
+            reset();
         }
     }
     else if (_state == 3)
@@ -151,9 +164,7 @@ void State::process(byte b)
         // if the file opened okay, write to it:
         if (_myFile)
         {
-            _myFile.write(b);
             _state = 4;
-            Serial.println(".. STATE 4 ..");
         }
         else
         {
@@ -162,20 +173,21 @@ void State::process(byte b)
                 Serial.print("error opening ");
                 Serial.println(_file_name);
             }
-            reset(3);
+            reset();
             _state = 0;
         }
     }
     else if (_state == 4)
     {
+        if (DEBUG_VERBOSE) 
+        {
+            Serial.println(".. STATE 4 ..");
+        }
 
         if (is_file_name_ended(b))
         {
-            Serial.println("DONE");
             Serial.flush();
             _myFile.close();
-            reset(4);
-            _state = 0;
         }
         else
         {
@@ -183,7 +195,7 @@ void State::process(byte b)
         }
     }
 
-    if (DEBUG_VERBOSE)
+    if (DEBUG_VERBOSE) 
     {
         Serial.println();
         Serial.println("=========");
