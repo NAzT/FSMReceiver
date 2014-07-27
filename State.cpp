@@ -1,11 +1,12 @@
 #include "State.h"
 
 // ----- Initialization -----
-#define DEBUG_VERBOSE 0
+#define DEBUG_VERBOSE 1
 #define DEBUG 1
 
 State::State(void)
 {
+    _init_key_counter = 0;
     _unitTicks = DefaultUnitTicks;        // # millisec after single click is assumed.
     _tmp_name_counter = 0;
     _tmp_ext_counter = 0;
@@ -51,11 +52,10 @@ bool State::is_file_name_ended(byte b)
 
 void State::process(byte b)
 {
-    if ((char) b == '!') {
-        _state = 0;
-        reset(0.0);
-    }
-    else if (_state == 0)   // FIRST CHAR MUST BE CHAR!
+
+    Serial.print("PROCESS.. ");
+    Serial.println(b, HEX);
+    if (_state == 0)   // FIRST CHAR MUST BE CHAR!
     {
         if (is_allowed(b))
         {
@@ -68,9 +68,10 @@ void State::process(byte b)
         {
             if (DEBUG_VERBOSE)
             {
-                Serial.println("NOT ALLOWED: @0");
+                Serial.print(b, HEX);
+                Serial.println(" NOT ALLOWED: @0");
             }
-            reset(0);
+            reset(0.5);
             _state = 0;
         }
     }
@@ -193,4 +194,5 @@ void State::process(byte b)
         Serial.println(_file_name);;
         Serial.println("=========");
     }
+
 }

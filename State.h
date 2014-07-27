@@ -53,8 +53,10 @@ private:
     int _state;
     unsigned long _startTime; // will be set for several states
 
+    unsigned int _ready;
     unsigned int _tmp_name_counter;
     unsigned int _tmp_ext_counter;
+    unsigned int _init_key_counter;
 
     char *_nextCode;
     char _file_name[FILE_TOTAL_LENGTH];
