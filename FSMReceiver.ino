@@ -1,7 +1,7 @@
 #include <SD.h>
 #include "State.h"
 
-State *state = 0;
+State *statePtr = 0;
 
 unsigned int state = 0;
 unsigned int ready = 0;
@@ -23,7 +23,7 @@ void setup()
         digitalWrite(13, LOW);
         Serial.println("OK");
         delay(50);
-        state = new State();
+        statePtr = new State();
     }
 }
 
@@ -50,18 +50,18 @@ void loop()
             {
 
                 Serial.print("OK RESET.. <3 ");
-                Serial.println(state->get_state());
+                Serial.println(statePtr->get_state());
 
 
-                if (state->get_state() != 4)
+                if (statePtr->get_state() != 4)
                 {
-                    state->reset(88);
-                    delete state;
-                    state = new State();
+                    statePtr->reset(88);
+                    delete statePtr;
+                    statePtr = new State();
                 }
                 else
                 {
-                    state->reset(99);
+                    statePtr->reset(99);
                 }
                 state = 0;
             }
@@ -70,12 +70,12 @@ void loop()
         {
             if (state == 0)
             {
-                state->process(c);
+                statePtr->process(c);
             }
             else if (state == 1)
             {
-                state->process(0x1b);
-                state->process(c);
+                statePtr->process(0x1b);
+                statePtr->process(c);
                 state = 0;
             }
 
