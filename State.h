@@ -44,6 +44,8 @@ public:
     bool is_file_name_ended(byte);
     void reset(float);
 
+    int get_state(void);
+
 private:
     int _unitTicks;
 

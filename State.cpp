@@ -13,6 +13,13 @@ State::State(void)
     _state = 0; // starting with state 0: waiting for a code to be sent.
 } //State
 
+
+int State::get_state() {
+    return _state;
+}
+
+
+
 void State::tick(void)
 {
     unsigned long now = millis(); // current (relative) time in msecs.
@@ -25,8 +32,23 @@ void State::tick(void)
 
 void State::reset(float state)
 {
-    Serial.print("RESET AT: ");
-    Serial.println(state);
+    Serial.print("LOCAL STATE__ ");
+    Serial.println(_state);
+
+    if (_state == 4)
+    {
+        Serial.println("===DONE==");
+
+        Serial.flush();
+        _myFile.close();
+        _state = 0;
+    }
+    else 
+    {
+        Serial.print("RESET AT: ");
+        Serial.println(state);
+    }
+    //
     for (int i = 0; i < FILE_TOTAL_LENGTH; ++i)
     {
         _file_name[i] = '\0';
@@ -53,8 +75,7 @@ bool State::is_file_name_ended(byte b)
 void State::process(byte b)
 {
 
-    Serial.print("PROCESSiNG.. ");
-    Serial.println(b, HEX);
+    Serial.print(b, HEX);
     if (_state == 0)   // FIRST CHAR MUST BE CHAR!
     {
         if (is_allowed(b))
@@ -128,6 +149,7 @@ void State::process(byte b)
             unsigned int len = strlen(_file_name);
             _file_name[len] = '\0';
             _state = 3;
+            Serial.println();
             Serial.print("OK GOT:");
             Serial.println(_file_name);
         }
@@ -135,6 +157,7 @@ void State::process(byte b)
         {
             if (DEBUG_VERBOSE)
             {
+                Serial.println();
                 Serial.println("RESET STATE @2.2");
             }
             _state = 0;
@@ -145,6 +168,7 @@ void State::process(byte b)
     {
         if (DEBUG_VERBOSE)
         {
+            Serial.println();
             Serial.println(".. STATE 3 ..");
         }
 
@@ -160,12 +184,14 @@ void State::process(byte b)
         {
             _myFile.write(b);
             _state = 4;
+            Serial.println();
             Serial.println(".. STATE 4 ..");
         }
         else
         {
             if (DEBUG_VERBOSE)
             {
+                Serial.println();
                 Serial.print("error opening ");
                 Serial.println(_file_name);
             }
@@ -178,11 +204,11 @@ void State::process(byte b)
 
         if (is_file_name_ended(b))
         {
-            Serial.println("DONE");
-            Serial.flush();
-            _myFile.close();
-            _state = 0;
-            reset(4);
+            // Serial.println("DONE");
+            // Serial.flush();
+            // _myFile.close();
+            // _state = 0;
+            // reset(4);
         }
         else
         {
