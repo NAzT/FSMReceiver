@@ -4,13 +4,21 @@ var fs = require('fs');
 var sp = new SerialPort("/dev/tty.usbserial-A9CN715P",
 {
     baudRate : 115200,
-    // dataBits : 8,
-    // parity : 'none',
-    // stopBits: 1,
-    // flowControl : false,
+    dataBits : 8,
+    parity : 'none',
+    stopBits: 1,
+    flowControl : true,
     // parser: serialport.parsers.raw
 parser: serialport.parsers.readline("\r\n")
 }, true);
+
+var streamBuffers = require("stream-buffers");
+// Initialize stream
+var myReadableStreamBuffer = new streamBuffers.ReadableStreamBuffer({
+  frequency: 30,       // in milliseconds.
+  chunkSize: 20// in bytes.
+});
+
 
 var Q = require('q');
 var debug = false;
@@ -94,47 +102,50 @@ var open = function()
     return deferred.promise;
 }
 
+myReadableStreamBuffer.on("data", function(data) {
+    writeMessage(data);
+});
 
 Q.fcall(open)
 .then(function()
 {
     return Q.delay(3000).then(function()
     {
-        console.log("WRITING [0x1a, 0x1a]");
-        return writeMessage(new Buffer([0x1a, 0x1a]));
+        console.log("WRITING [0x1b, 0x1b]");
+        return writeMessage(new Buffer([0x1b, 0x1b]));
     })
 })
-.then(function()
-{
-    var msg = new Buffer("abcdef.out;")
-    console.log("WRITING.. ", msg.toString());
-    // msg.writeUInt8(0x1a, msg.length-1);
-    return writeMessage(msg);
-})
-.then(function()
-{
-    var msg = new Buffer("HELLO;")
-    // msg.writeUInt8(0x1a, msg.length-1);
-    return Q.delay(3000).then(function()
-    {
-        console.log("WRITING.. ", msg.toString());
-        return writeMessage(new Buffer(msg));
-    })
-})
-.then(function() {
-    return Q.delay(1000).then(function()
-    {
-        return writeMessage(new Buffer([0x1a, 0x1a]));
-    })
-})
+// .then(function()
+// {
+//     var msg = new Buffer("abcdef.out;")
+//     console.log("WRITING.. ", msg.toString());
+//     // msg.writeUInt8(0x1b, msg.length-1);
+//     return writeMessage(msg);
+// })
+// .then(function()
+// {
+//     var msg = new Buffer("HELLO;")
+//     // msg.writeUInt8(0x1b, msg.length-1);
+//     return Q.delay(3000).then(function()
+//     {
+//         console.log("WRITING.. ", msg.toString());
+//         return writeMessage(new Buffer(msg));
+//     })
+// })
+// .then(function() {
+//     return Q.delay(1000).then(function()
+//     {
+//         return writeMessage(new Buffer([0x1b, 0x1b]));
+//     })
+// })
 .then(function()
 {
     return Q.delay(2000).then(function()
     {
-        var name = new Buffer("hello.txt");
-        var sep = new Buffer(";");
+        var name = new Buffer("hello.txt;");
+        var sep = new Buffer([0x1b, 0x1b]);
         var content = new Buffer("hexhehxhexhgogo");
-        var msg = Buffer.concat([name, sep, content, sep]);
+        var msg = Buffer.concat([name, content, sep]);
         return writeMessage(msg);
     })
 })
@@ -142,28 +153,32 @@ Q.fcall(open)
     return Q.delay(1000).then(function()
     {
         console.log("WRITING.... RESET");
-        return writeMessage(new Buffer([0x1a, 0x1a]));
+        return writeMessage(new Buffer([0x1b, 0x1b]));
     })
-})
-.then(function() {
-  return read2("nat");
 })
 .then(function(content) {
 
-        var name = new Buffer("image.jpg");
-        var sep = new Buffer(";");
-        console.log(typeof(content))
-        var content = new Buffer(content.toString());
-        var msg = Buffer.concat([name, sep, content, sep]);
-        console.log(msg);
-        return writeMessage(msg);
-//     console.log("CONTENT...", content.length);
-//     var name = new Buffer("nat.out;");
-//     var c = new Buffer(content);
-//     var end = new Buffer(";");
-//     var reset = new Buffer([0x1a, 0x1a]);
-//     var msg = new Buffer([name, c, end, reset]);
-//   return writeMessage(msg);
+    return Q.delay(1000).then(function()
+    {
+        var name = new Buffer("nat.out;");
+        return writeMessage(name);
+    });
+})
+.then(function() {
+  return read2("dl.gif");
+})
+.then(function(content) {
+    return Q.delay(5000).then(function()
+    {
+        // var name = new Buffer("nat.out;");
+        var sep = new Buffer([0x1b, 0x1b]);
+        var msg = Buffer.concat([content, sep]);
+        console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        console.log(msg.toString("HEX"));
+        console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+        // return writeMessage(msg);
+        myReadableStreamBuffer.put(msg);
+    });
 })
 .fail(function()
 {
@@ -175,3 +190,7 @@ sp.on('data', function(data)
 {
     console.log(">>", data);
 });
+
+sp.on('error', function(data) {
+    console.log(err, arguments);
+})
