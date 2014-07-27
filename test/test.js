@@ -3,7 +3,7 @@ var serialport = require("serialport")
 var fs = require('fs');
 var sp = new SerialPort("/dev/tty.usbserial-A9CN715P",
 {
-    baudRate : 9600,
+    baudRate : 115200,
     // dataBits : 8,
     // parity : 'none',
     // stopBits: 1,
@@ -35,7 +35,7 @@ function writeMessage(msg)
 {
     var deferred = Q.defer();
 
-    console.log(msg, msg.length+ " to be written.")
+    console.log("writing ", msg.length, " bytes. ", msg);
     sp.write(msg, function(err, results)
     {
         if (err)
@@ -100,6 +100,7 @@ Q.fcall(open)
 {
     return Q.delay(3000).then(function()
     {
+        console.log("WRITING [0x1a, 0x1a]");
         return writeMessage(new Buffer([0x1a, 0x1a]));
     })
 })
@@ -108,28 +109,62 @@ Q.fcall(open)
     var msg = new Buffer("abcdef.out;")
     console.log("WRITING.. ", msg.toString());
     // msg.writeUInt8(0x1a, msg.length-1);
-    writeMessage(msg)
+    return writeMessage(msg);
 })
 .then(function()
 {
     var msg = new Buffer("HELLO;")
     // msg.writeUInt8(0x1a, msg.length-1);
-    console.log("WRITING.. ", msg.toString());
-    writeMessage(msg);
+    return Q.delay(3000).then(function()
+    {
+        console.log("WRITING.. ", msg.toString());
+        return writeMessage(new Buffer(msg));
+    })
+})
+.then(function() {
+    return Q.delay(1000).then(function()
+    {
+        return writeMessage(new Buffer([0x1a, 0x1a]));
+    })
 })
 .then(function()
 {
-    // writeMessage("a2.out;HELLO;")
+    return Q.delay(2000).then(function()
+    {
+        var name = new Buffer("hello.txt");
+        var sep = new Buffer(";");
+        var content = new Buffer("hexhehxhexhgogo");
+        var msg = Buffer.concat([name, sep, content, sep]);
+        return writeMessage(msg);
+    })
 })
-.then(function()
-{
+.then(function(){
+    return Q.delay(1000).then(function()
+    {
+        console.log("WRITING.... RESET");
+        return writeMessage(new Buffer([0x1a, 0x1a]));
+    })
 })
-// .then(function() {
-//   return read2("Pixy1.jpg");
-// })
-// .then(function(content) {
-//   writeMessage("nat.out", content)
-// })
+.then(function() {
+  return read2("nat");
+})
+.then(function(content) {
+
+        var name = new Buffer("image.jpg");
+        var sep = new Buffer(";");
+        console.log(typeof(content))
+        var content = new Buffer(content.toString());
+        var msg = Buffer.concat([name, sep, content, sep]);
+        console.log(msg);
+        return writeMessage(msg);
+//     console.log("CONTENT...", content.length);
+//     var name = new Buffer("nat.out;");
+//     var c = new Buffer(content);
+//     var end = new Buffer(";");
+//     var reset = new Buffer([0x1a, 0x1a]);
+//     var msg = new Buffer([name, c, end, reset]);
+//   return writeMessage(msg);
+})
 .fail(function()
 {
     console.log(arguments);
@@ -138,5 +173,5 @@ Q.fcall(open)
 
 sp.on('data', function(data)
 {
-    console.log(data);
+    console.log(">>", data);
 });
