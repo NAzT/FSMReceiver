@@ -8,10 +8,12 @@ var writeFile = Q.denodeify(fs.writeFile);
 
 
 read2("a.out")
-.then(function(content) {
-	return writeFile("nat", content);
+.then(function(content)
+{
+    return writeFile("nat", content);
 })
-.then(function() {
-	console.log(arguments);
+.then(function()
+{
+    console.log(arguments);
 })
 .done();

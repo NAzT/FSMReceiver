@@ -1,6 +1,9 @@
+
 {
-  "dependencies": {
-    "q": "^1.0.1",
-    "serialport": "^1.4.2"
-  }
+"dependencies":
+    {
+"q": "^1.0.1"
+        ,
+"serialport": "^1.4.2"
+    }
 }
