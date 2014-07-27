@@ -58,7 +58,7 @@ void State::reset(float state)
 
 bool State::is_allowed(byte b)
 {
-    bool allowed = (b >= 48 && b <= 57) || (b>=97 && b<= 122);
+    bool allowed = (b >= 0x30 && b <= 0x39 ) || (b>=0x61 && b<= 0x7a);
     return allowed;
 }
 
@@ -203,19 +203,7 @@ void State::process(byte b)
     }
     else if (_state == 4)
     {
-
-        if (is_file_name_ended(b))
-        {
-            // Serial.println("DONE");
-            // Serial.flush();
-            // _myFile.close();
-            // _state = 0;
-            // reset(4);
-        }
-        else
-        {
-            _myFile.write(b);
-        }
+        _myFile.write(b);
     }
 
     if (DEBUG_VERBOSE)
