@@ -14,7 +14,8 @@ State::State(void)
 } //State
 
 
-int State::get_state() {
+int State::get_state()
+{
     return _state;
 }
 
@@ -43,7 +44,7 @@ void State::reset(float state)
         _myFile.close();
         _state = 0;
     }
-    else 
+    else
     {
         Serial.print("RESET AT: ");
         Serial.println(state);
@@ -173,7 +174,8 @@ void State::process(byte b)
         }
 
 
-        if (SD.exists(_file_name)) {
+        if (SD.exists(_file_name))
+        {
             SD.remove(_file_name);
         }
 

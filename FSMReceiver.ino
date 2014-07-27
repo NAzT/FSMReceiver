@@ -29,7 +29,7 @@ void setup()
 
 void loop()
 {
-    if (!ready) 
+    if (!ready)
     {
         Serial.println("HAVE A PROBLEM!!");
         delay(1000);
@@ -40,9 +40,9 @@ void loop()
         // Serial.println(Serial.available());
         byte c = Serial.read();
 
-        if (c == 0x1b) 
+        if (c == 0x1b)
         {
-            if (state == 0) 
+            if (state == 0)
             {
                 state = 1;
             }
@@ -53,20 +53,20 @@ void loop()
                 Serial.println(nat->get_state());
 
 
-                if (nat->get_state() != 4) 
+                if (nat->get_state() != 4)
                 {
                     nat->reset(88);
                     delete nat;
                     nat = new State();
                 }
-                else 
+                else
                 {
                     nat->reset(99);
                 }
                 state = 0;
             }
         }
-        else 
+        else
         {
             if (state == 0)
             {
