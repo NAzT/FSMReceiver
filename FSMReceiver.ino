@@ -37,9 +37,10 @@ void loop()
     }
     if (Serial.available() > 0)
     {
+        // Serial.println(Serial.available());
         byte c = Serial.read();
 
-        if (c == 0x1a) 
+        if (c == 0x1b) 
         {
             if (state == 0) 
             {
@@ -47,10 +48,21 @@ void loop()
             }
             else if (state == 1)
             {
-                Serial.println("OK RESET");
-                delete nat;
-                nat = new State();
-                // nat->reset(99);
+
+                Serial.print("OK RESET.. <3 ");
+                Serial.println(nat->get_state());
+
+
+                if (nat->get_state() != 4) 
+                {
+                    nat->reset(88);
+                    delete nat;
+                    nat = new State();
+                }
+                else 
+                {
+                    nat->reset(99);
+                }
                 state = 0;
             }
         }
@@ -62,27 +74,12 @@ void loop()
             }
             else if (state == 1)
             {
-                nat->process(0x1a);
+                nat->process(0x1b);
                 nat->process(c);
                 state = 0;
             }
 
         }
-        // if (state == 0)
-        // {
-        //     if (c == 0x1a)
-        //     {
-        //         state = 1;
-        //     }
-        // }
-        // else if (state == 1) 
-        // {
-        //     if (c == 0x1a) 
-        //     {
-        //         Serial.println("RESET");
-        //         nat->reset(99);
-        //     }
-        // }
     }
 
 }
