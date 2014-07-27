@@ -1,7 +1,7 @@
 #include "State.h"
 
 // ----- Initialization -----
-#define DEBUG_VERBOSE 1
+#define DEBUG_VERBOSE 0
 #define DEBUG 1
 
 State::State(void)
@@ -23,7 +23,7 @@ void State::tick(void)
     }
 }
 
-bool State::reset(float state)
+void State::reset(float state)
 {
     Serial.print("RESET AT: ");
     Serial.println(state);
@@ -53,7 +53,7 @@ bool State::is_file_name_ended(byte b)
 void State::process(byte b)
 {
 
-    Serial.print("PROCESS.. ");
+    Serial.print("PROCESSiNG.. ");
     Serial.println(b, HEX);
     if (_state == 0)   // FIRST CHAR MUST BE CHAR!
     {
@@ -128,6 +128,7 @@ void State::process(byte b)
             unsigned int len = strlen(_file_name);
             _file_name[len] = '\0';
             _state = 3;
+            Serial.print("OK GOT:");
             Serial.println(_file_name);
         }
         else
@@ -145,6 +146,11 @@ void State::process(byte b)
         if (DEBUG_VERBOSE)
         {
             Serial.println(".. STATE 3 ..");
+        }
+
+
+        if (SD.exists(_file_name)) {
+            SD.remove(_file_name);
         }
 
         _myFile = SD.open(_file_name, FILE_WRITE);
@@ -175,8 +181,8 @@ void State::process(byte b)
             Serial.println("DONE");
             Serial.flush();
             _myFile.close();
-            reset(4);
             _state = 0;
+            reset(4);
         }
         else
         {

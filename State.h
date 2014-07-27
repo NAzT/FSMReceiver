@@ -42,7 +42,7 @@ public:
     bool is_allowed(byte);
     bool is_dot(byte);
     bool is_file_name_ended(byte);
-    bool reset(float);
+    void reset(float);
 
 private:
     int _unitTicks;
