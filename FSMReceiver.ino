@@ -3,15 +3,14 @@
 
 State *nat = 0;
 
-byte prevChar = 0x0;
-
+unsigned int state = 0;
 unsigned int ready = 0;
 
 void setup()
 {
     pinMode(13, OUTPUT);
     pinMode(10, OUTPUT);
-    Serial.begin(9600);
+    Serial.begin(115200);
     Serial.flush();
     digitalWrite(13, HIGH);
     if (!SD.begin(10))
@@ -23,64 +22,69 @@ void setup()
         ready = 1;
         digitalWrite(13, LOW);
         Serial.println("OK");
-        delay(200);
+        delay(50);
         nat = new State();
     }
-
-
 }
 
 void loop()
 {
-    if (!ready)
+    if (!ready) 
     {
-        Serial.println("NOT READY");
+        Serial.println("HAVE A PROBLEM!!");
         delay(1000);
         return;
     }
-
-    static int n = 0;
-    nat->tick();
-
-
     if (Serial.available() > 0)
     {
-
         byte c = Serial.read();
 
-        if (prevChar == 0x1a)
+        if (c == 0x1a) 
         {
-            if (c == 0x1A)
+            if (state == 0) 
             {
-                Serial.println("RESET...");
+                state = 1;
             }
-            else
+            else if (state == 1)
             {
-                Serial.println("___..");
-                if (prevChar == 0x0)
-                {
-                    Serial.println("----PROCESS ONLY C");
-                    nat->process(c);
-                }
-                else
-                {
-                    Serial.println("----PROCESS TWO CHARS");
-                    nat->process(prevChar);
-                    nat->process(c);
-                }
+                Serial.println("OK RESET");
+                delete nat;
+                nat = new State();
+                // nat->reset(99);
+                state = 0;
             }
         }
-        else
+        else 
         {
-            nat->process(c);
-            // Serial.println("++PROCESS..");
+            if (state == 0)
+            {
+                nat->process(c);
+            }
+            else if (state == 1)
+            {
+                nat->process(0x1a);
+                nat->process(c);
+                state = 0;
+            }
+
         }
-        prevChar = c;
+        // if (state == 0)
+        // {
+        //     if (c == 0x1a)
+        //     {
+        //         state = 1;
+        //     }
+        // }
+        // else if (state == 1) 
+        // {
+        //     if (c == 0x1a) 
+        //     {
+        //         Serial.println("RESET");
+        //         nat->reset(99);
+        //     }
+        // }
     }
 
-// keep watching the push button:
-
-    delay(1);
 }
 
 
