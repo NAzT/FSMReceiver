@@ -40,7 +40,7 @@ void loop()
         // Serial.println(Serial.available());
         byte c = Serial.read();
 
-        if (c == 0x1b)
+        if (c == 0x1a)
         {
             if (state == 0)
             {
@@ -74,7 +74,7 @@ void loop()
             }
             else if (state == 1)
             {
-                statePtr->process(0x1b);
+                statePtr->process(0x1a);
                 statePtr->process(c);
                 state = 0;
             }
