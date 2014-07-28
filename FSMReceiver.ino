@@ -31,13 +31,12 @@ void loop()
 {
     if (!ready)
     {
-        Serial.println("HAVE A PROBLEM!!");
+        Serial.println("initialization failed!");
         delay(1000);
         return;
     }
     if (Serial.available() > 0)
     {
-        // Serial.println(Serial.available());
         byte c = Serial.read();
 
         if (c == 0x1a)
